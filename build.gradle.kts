@@ -55,7 +55,7 @@ subprojects {
     apply(plugin = "kotlinx-atomicfu")
     apply(plugin = "org.jetbrains.dokka")
   
-    if(!isJitPack && Library.isRelease){
+    if(!isJitPack && !isPerfectDreams && Library.isRelease){
         apply(plugin = "signing")
     }
 
@@ -186,7 +186,7 @@ subprojects {
                     }
                 }
 
-                if (!isJitPack) {
+                if (!isJitPack && !isPerfectDreams) {
                     repositories {
                         maven {
                             url = if (Library.isSnapshot) uri(Repo.snapshotsUrl)
@@ -203,7 +203,7 @@ subprojects {
             }
         }
 
-        if (System.getenv("PERFECTDREAMS") != null) {
+        if (isPerfectDreams) {
             repositories {
                 maven {
                     name = "PerfectDreams"
@@ -218,7 +218,7 @@ subprojects {
         }
     }
 
-    if (!isJitPack && Library.isRelease) {
+    if (!isJitPack && !isPerfectDreams && Library.isRelease) {
         signing {
             val signingKey = findProperty("signingKey")?.toString()
             val signingPassword = findProperty("signingPassword")?.toString()
