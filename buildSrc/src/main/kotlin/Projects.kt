@@ -11,6 +11,7 @@ val DependencyHandlerScope.core get() = project(":core")
  * whether the process has been invoked by JitPack
  */
 val isJitPack get() = "true" == System.getenv("JITPACK")
+val isPerfectDreams get() = System.getProperty("PERFECTDREAMS") != null
 
 object Library {
     private const val releaseVersion = "0.7.0-DiscordInteraKTions-SNAPSHOT"
