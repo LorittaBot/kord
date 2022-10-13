@@ -9,15 +9,7 @@ object Library {
     val version: String
         get() = if (isJitPack) System.getenv("RELEASE_TAG")
         else {
-            val tag = System.getenv("GITHUB_TAG_NAME")
-            val branch = System.getenv("GITHUB_BRANCH_NAME")
-            when {
-                !tag.isNullOrBlank() -> tag
-                !branch.isNullOrBlank() && branch.startsWith("refs/heads/") ->
-                    branch.substringAfter("refs/heads/").replace("/", "-") + "-SNAPSHOT"
-                else -> "undefined"
-            }
-
+            System.getProperty("KORD_TAG_NAME") ?: "unknown"
         }
 
     val commitHash get() = System.getenv("GITHUB_SHA") ?: "unknown"

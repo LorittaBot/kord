@@ -50,13 +50,9 @@ tasks {
                 if (!isJitPack) {
                     repositories {
                         maven {
-                            url = if (Library.isSnapshot) uri(Repo.snapshotsUrl)
-                            else uri(Repo.releasesUrl)
-
-                            credentials {
-                                username = System.getenv("NEXUS_USER")
-                                password = System.getenv("NEXUS_PASSWORD")
-                            }
+                            name = "PerfectDreams"
+                            url = uri("https://repo.perfectdreams.net/")
+                            credentials(PasswordCredentials::class)
                         }
                     }
                 }
