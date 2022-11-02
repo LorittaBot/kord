@@ -131,9 +131,10 @@ public enum class UserFlag(public val code: Int) {
 }
 
 @Serializable(with = UserFlags.UserFlagsSerializer::class)
-public data class UserFlags(val code: Int) {
-
-    val flags: List<UserFlag> = UserFlag.values().filter { code and it.code != 0 }
+@JvmInline
+public value class UserFlags(public val code: Int) {
+    public val flags: List<UserFlag>
+        get() = UserFlag.values().filter { code and it.code != 0 }
 
     public operator fun contains(flag: UserFlag): Boolean = flag in flags
 
