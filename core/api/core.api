@@ -2043,6 +2043,11 @@ public final class dev/kord/core/behavior/interaction/response/InteractionRespon
 	public static fun getFollowupMessageOrNull (Ldev/kord/core/behavior/interaction/response/InteractionResponseBehavior;Ldev/kord/common/entity/Snowflake;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class dev/kord/core/behavior/interaction/response/InteractionResponseBehaviorKt {
+	public static final synthetic fun followUp (Ldev/kord/core/behavior/interaction/response/InteractionResponseBehavior;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final synthetic fun followUpEphemeral (Ldev/kord/core/behavior/interaction/response/InteractionResponseBehavior;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public abstract interface class dev/kord/core/behavior/interaction/response/MessageInteractionResponseBehavior : dev/kord/core/behavior/interaction/response/FollowupPermittingInteractionResponseBehavior {
 	public abstract fun delete (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun withStrategy (Ldev/kord/core/supplier/EntitySupplyStrategy;)Ldev/kord/core/behavior/interaction/response/MessageInteractionResponseBehavior;
@@ -7110,7 +7115,7 @@ public class dev/kord/core/entity/User : dev/kord/core/behavior/UserBehavior {
 	public fun getId ()Ldev/kord/common/entity/Snowflake;
 	public fun getKord ()Ldev/kord/core/Kord;
 	public fun getMention ()Ljava/lang/String;
-	public final fun getPublicFlags ()Ldev/kord/common/entity/UserFlags;
+	public final fun getPublicFlags-qygzHIY ()Ldev/kord/common/entity/UserFlags;
 	public fun getSupplier ()Ldev/kord/core/supplier/EntitySupplier;
 	public final fun getTag ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;

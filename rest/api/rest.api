@@ -3489,6 +3489,38 @@ public final class dev/kord/rest/json/request/GuildCreateRequest$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class dev/kord/rest/json/request/GuildEmbedModifyRequest {
+	public static final field Companion Ldev/kord/rest/json/request/GuildEmbedModifyRequest$Companion;
+	public synthetic fun <init> (IZLdev/kord/common/entity/Snowflake;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public fun <init> (ZLdev/kord/common/entity/Snowflake;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Ldev/kord/common/entity/Snowflake;
+	public final fun copy (ZLdev/kord/common/entity/Snowflake;)Ldev/kord/rest/json/request/GuildEmbedModifyRequest;
+	public static synthetic fun copy$default (Ldev/kord/rest/json/request/GuildEmbedModifyRequest;ZLdev/kord/common/entity/Snowflake;ILjava/lang/Object;)Ldev/kord/rest/json/request/GuildEmbedModifyRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChannelId ()Ldev/kord/common/entity/Snowflake;
+	public final fun getEnabled ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public static final fun write$Self (Ldev/kord/rest/json/request/GuildEmbedModifyRequest;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class dev/kord/rest/json/request/GuildEmbedModifyRequest$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Ldev/kord/rest/json/request/GuildEmbedModifyRequest$$serializer;
+	public static final synthetic field descriptor Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ldev/kord/rest/json/request/GuildEmbedModifyRequest;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ldev/kord/rest/json/request/GuildEmbedModifyRequest;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class dev/kord/rest/json/request/GuildEmbedModifyRequest$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class dev/kord/rest/json/request/GuildFromTemplateCreateRequest {
 	public static final field Companion Ldev/kord/rest/json/request/GuildFromTemplateCreateRequest$Companion;
 	public synthetic fun <init> (ILjava/lang/String;Ldev/kord/common/entity/optional/Optional;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
@@ -5182,6 +5214,38 @@ public final class dev/kord/rest/json/response/DiscordErrorResponse$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class dev/kord/rest/json/response/EmbedResponse {
+	public static final field Companion Ldev/kord/rest/json/response/EmbedResponse$Companion;
+	public synthetic fun <init> (IZLjava/lang/String;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public fun <init> (ZLjava/lang/String;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (ZLjava/lang/String;)Ldev/kord/rest/json/response/EmbedResponse;
+	public static synthetic fun copy$default (Ldev/kord/rest/json/response/EmbedResponse;ZLjava/lang/String;ILjava/lang/Object;)Ldev/kord/rest/json/response/EmbedResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChannelId ()Ljava/lang/String;
+	public final fun getEnabled ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public static final fun write$Self (Ldev/kord/rest/json/response/EmbedResponse;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class dev/kord/rest/json/response/EmbedResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Ldev/kord/rest/json/response/EmbedResponse$$serializer;
+	public static final synthetic field descriptor Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ldev/kord/rest/json/response/EmbedResponse;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ldev/kord/rest/json/response/EmbedResponse;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class dev/kord/rest/json/response/EmbedResponse$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class dev/kord/rest/json/response/FollowedChannelResponse {
 	public static final field Companion Ldev/kord/rest/json/response/FollowedChannelResponse$Companion;
 	public synthetic fun <init> (ILdev/kord/common/entity/Snowflake;Ldev/kord/common/entity/Snowflake;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
@@ -5563,6 +5627,21 @@ public final class dev/kord/rest/ratelimit/RequestResponse$GlobalRateLimit : dev
 	public final fun component3-Ad4v_Ag ()Lkotlinx/datetime/Instant;
 	public final fun copy-ociLOyk (Ljava/lang/String;Ldev/kord/rest/ratelimit/RateLimit;Lkotlinx/datetime/Instant;)Ldev/kord/rest/ratelimit/RequestResponse$GlobalRateLimit;
 	public static synthetic fun copy-ociLOyk$default (Ldev/kord/rest/ratelimit/RequestResponse$GlobalRateLimit;Ljava/lang/String;Ldev/kord/rest/ratelimit/RateLimit;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Ldev/kord/rest/ratelimit/RequestResponse$GlobalRateLimit;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getBucketKey-JBzVXgM ()Ljava/lang/String;
+	public fun getRateLimit ()Ldev/kord/rest/ratelimit/RateLimit;
+	public synthetic fun getReset-8536Nbg ()Lkotlinx/datetime/Instant;
+	public fun getReset-Ad4v_Ag ()Lkotlinx/datetime/Instant;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/kord/rest/ratelimit/RequestResponse$UnknownBucketRateLimit : dev/kord/rest/ratelimit/RequestResponse {
+	public synthetic fun <init> (Ldev/kord/rest/ratelimit/RateLimit;Lkotlinx/datetime/Instant;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ldev/kord/rest/ratelimit/RateLimit;
+	public final fun component2-Ad4v_Ag ()Lkotlinx/datetime/Instant;
+	public final fun copy-K94tdRY (Ldev/kord/rest/ratelimit/RateLimit;Lkotlinx/datetime/Instant;)Ldev/kord/rest/ratelimit/RequestResponse$UnknownBucketRateLimit;
+	public static synthetic fun copy-K94tdRY$default (Ldev/kord/rest/ratelimit/RequestResponse$UnknownBucketRateLimit;Ldev/kord/rest/ratelimit/RateLimit;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Ldev/kord/rest/ratelimit/RequestResponse$UnknownBucketRateLimit;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getBucketKey-JBzVXgM ()Ljava/lang/String;
 	public fun getRateLimit ()Ldev/kord/rest/ratelimit/RateLimit;
@@ -6127,6 +6206,14 @@ public final class dev/kord/rest/route/Route$GuildCurrentUserNickPatch : dev/kor
 
 public final class dev/kord/rest/route/Route$GuildDelete : dev/kord/rest/route/Route {
 	public static final field INSTANCE Ldev/kord/rest/route/Route$GuildDelete;
+}
+
+public final class dev/kord/rest/route/Route$GuildEmbedGet : dev/kord/rest/route/Route {
+	public static final field INSTANCE Ldev/kord/rest/route/Route$GuildEmbedGet;
+}
+
+public final class dev/kord/rest/route/Route$GuildEmbedPatch : dev/kord/rest/route/Route {
+	public static final field INSTANCE Ldev/kord/rest/route/Route$GuildEmbedPatch;
 }
 
 public final class dev/kord/rest/route/Route$GuildEmojiDelete : dev/kord/rest/route/Route {
