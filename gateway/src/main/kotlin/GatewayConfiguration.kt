@@ -5,9 +5,11 @@ import dev.kord.common.entity.optional.Optional
 import dev.kord.common.entity.optional.coerceToMissing
 import dev.kord.common.entity.optional.optional
 import dev.kord.gateway.builder.PresenceBuilder
+import kotlinx.serialization.Serializable
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+@Serializable
 public data class GatewayConfiguration(
     val token: String,
     val name: String,
@@ -65,3 +67,9 @@ public class GatewayConfigurationBuilder(
         intents
     )
 }
+
+@Serializable
+public data class GatewayResumeConfiguration(
+    val session: GatewaySession?,
+    val startConfiguration: GatewayConfiguration
+)

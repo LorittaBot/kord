@@ -141,12 +141,12 @@ public class DefaultGateway(private val data: DefaultGatewayData) : Gateway {
     }
 
     private val stateMutex = Mutex()
+    private val initialUrl = Url(data.url)
+    private val sequence = Sequence()
 
     init {
-        val initialUrl = Url(data.url)
         compression = initialUrl.parameters.contains("compress", "zlib-stream")
 
-        val sequence = Sequence()
         SequenceHandler(events, sequence)
         handshakeHandler = HandshakeHandler(events, initialUrl, ::trySend, sequence, data.reconnectRetry)
         HeartbeatHandler(events, ::trySend, { restart(Close.ZombieConnection) }, { _ping.value = it }, sequence)
@@ -154,10 +154,31 @@ public class DefaultGateway(private val data: DefaultGatewayData) : Gateway {
         InvalidSessionHandler(events) { restart(it) }
     }
 
-    //running on default dispatchers because ktor does *not* like running on an EmptyCoroutineContext from main
-    override suspend fun start(configuration: GatewayConfiguration): Unit = withContext(Dispatchers.Default) {
+    override suspend fun start(configuration: GatewayConfiguration) {
         resetState(configuration)
 
+        startAndHandleGatewayConnection(configuration)
+    }
+
+    override suspend fun resume(configuration: GatewayResumeConfiguration) {
+        resetState(configuration.startConfiguration)
+        val session = configuration.session
+        if (session != null) {
+            sequence.value = session.sequence
+            handshakeHandler.resumeContext.update {
+                HandshakeHandler.ResumeContext(
+                    session.sessionId,
+                    URLBuilder(session.resumeUrl)
+                        .apply { parameters.appendMissing(initialUrl.parameters) }
+                        .build()
+                )
+            }
+        }
+
+        startAndHandleGatewayConnection(configuration.startConfiguration)
+    }
+
+    private suspend fun startAndHandleGatewayConnection(configuration: GatewayConfiguration) = withContext(data.dispatcher) {
         while (data.reconnectRetry.hasNext && state.value is State.Running) {
             try {
                 val (needsIdentify, gatewayUrl) = handshakeHandler.needsIdentifyAndGatewayUrl
@@ -295,12 +316,27 @@ public class DefaultGateway(private val data: DefaultGatewayData) : Gateway {
         }
     }
 
-    override suspend fun stop() {
+    override suspend fun stop(closeReason: WebSocketCloseReason): GatewayResumeConfiguration {
         check(state.value !is State.Detached) { "The resources of this gateway are detached, create another one" }
         data.eventFlow.emit(Close.UserClose)
         state.update { State.Stopped }
         _ping.value = null
-        if (socketOpen) socket.close(CloseReason(1000, "leaving"))
+        if (socketOpen) socket.close(CloseReason(closeReason.code, closeReason.message))
+
+        val resumeContext = handshakeHandler.resumeContext.value // We don't have any resume context, so we haven't made a succesful gateway connection.
+        val sequenceNumber = sequence.value // We don't have any sequence number stored, so we *probably* haven't made a succesful gateway connection.
+        val session = if (resumeContext != null && sequenceNumber != null) {
+            GatewaySession(
+                resumeContext.sessionId,
+                resumeContext.resumeUrl.toString(),
+                sequenceNumber
+            )
+        } else null
+
+        return GatewayResumeConfiguration(
+            session,
+            handshakeHandler.configuration
+        )
     }
 
     internal suspend fun restart(code: Close) {
