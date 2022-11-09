@@ -30,9 +30,34 @@ public val HttpResponse.channelResetPoint: Instant
         return Instant.fromEpochMilliseconds(unixSeconds.times(1000).toLong())
     }
 
+/**
+ * Gets when the current rate limit bucket expires, based on the [rateLimitResetPoint] and [retryAfterResetPoint] implementations.
+ *
+ * If both results are null, [channelResetPoint] will be used.
+ */
 public fun HttpResponse.channelResetPoint(clock: Clock): Instant {
-    val seconds = headers[rateLimitResetAfter]?.toDouble() ?: return clock.now()
-    return clock.now().plus(seconds.seconds)
+    return rateLimitResetPoint() ?: retryAfterResetPoint(clock) ?: channelResetPoint
+}
+
+/**
+ * Gets when the current rate limit bucket expires, based on the [rateLimitResetAfter] and [resetTimeHeader] headers.
+ *
+ * If the [rateLimitResetAfter] header is not present, null will be returned.
+ * If the [resetTimeHeader] header is not present, the current time will be used
+ */
+public fun HttpResponse.rateLimitResetPoint(): Instant? {
+    val seconds = headers[rateLimitResetAfter]?.toDouble() ?: return null
+    return channelResetPoint + seconds.seconds
+}
+
+/**
+ * Gets when the current rate limit bucket expires, based on the [retryAfterHeader] headers.
+ *
+ * The end time will be based from the current instant from the [clock], plus the retry after seconds.
+ */
+public fun HttpResponse.retryAfterResetPoint(clock: Clock): Instant? {
+    val seconds = headers[retryAfterHeader]?.toLong() ?: return null
+    return clock.now() + seconds.seconds
 }
 
 public val HttpResponse.isRateLimit: Boolean get() = status.value == 429
@@ -43,14 +68,6 @@ public val HttpResponse.rateLimitTotal: Long? get() = headers[rateLimit]?.toLong
 public val HttpResponse.rateLimitRemaining: Long? get() = headers[rateLimitRemainingHeader]?.toLongOrNull()
 public val HttpResponse.isChannelRateLimit: Boolean get() = headers[rateLimitRemainingHeader]?.toIntOrNull() == 0
 public val HttpResponse.bucket: BucketKey? get() = headers[bucketRateLimitKey]?.let { BucketKey(it) }
-
-/**
- * The unix time (in ms) when the global rate limit gets reset.
- */
-public fun HttpResponse.globalSuspensionPoint(clock: Clock): Long {
-    val secondsWait = headers[retryAfterHeader]?.toLong() ?: return clock.now().toEpochMilliseconds()
-    return (secondsWait * 1000) + clock.now().toEpochMilliseconds()
-}
 
 public fun HttpResponse.logString(body: String): String =
     "[RESPONSE]:${status.value}:${call.request.method.value}:${call.request.url} body:$body"

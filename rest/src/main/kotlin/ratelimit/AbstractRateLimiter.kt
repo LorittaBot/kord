@@ -18,14 +18,27 @@ import kotlin.time.Duration.Companion.minutes
 public abstract class AbstractRateLimiter internal constructor(public val clock: Clock) : RequestRateLimiter {
     internal abstract val logger: KLogger
 
-    internal val autoBanRateLimiter = IntervalRateLimiter(limit = 25000, interval = 10.minutes)
+    // https://discord.com/developers/docs/topics/rate-limits#invalid-request-limit-aka-cloudflare-bans
+    internal val autoBanRateLimiter = IntervalRateLimiter(limit = 10_000, interval = 10.minutes)
     internal val globalSuspensionPoint = atomic(Reset(clock.now()))
-    internal val buckets = ConcurrentHashMap<BucketKey, Bucket>()
-    internal val routeBuckets = ConcurrentHashMap<RequestIdentifier, MutableSet<BucketKey>>()
+    internal val routeBuckets = ConcurrentHashMap<RequestIdentifier, ConcurrentHashMap<BucketKey, Bucket>>()
+    internal val Request<*, *>.buckets get() = routeBuckets[identifier].orEmpty().values.toList()
+    // Fallback bucket key if the request doesn't have any bucket ID
+    internal val missingBucket = BucketKey("missing")
 
-    internal val BucketKey.bucket get() = buckets.getOrPut(this) { Bucket(this) }
-    internal val Request<*, *>.buckets get() = routeBuckets[identifier].orEmpty().map { it.bucket }
-    internal fun RequestIdentifier.addBucket(id: BucketKey) = routeBuckets.getOrPut(this) { mutableSetOf() }.add(id)
+    internal fun createBucket(identity: RequestIdentifier, response: RequestResponse): Bucket? {
+        val key = response.bucketKey ?: missingBucket
+        
+        val bucket = routeBuckets
+            .getOrPut(identity) { ConcurrentHashMap() }
+            .getOrPut(key) {
+                logger.trace { "[DISCOVERED]:[BUCKET]:Bucket discovered for ${key.value} (identity $identity)" }
+                Bucket(identity, key)
+            }
+
+        bucket.updateRateLimit(response.rateLimit, response.reset)
+        return bucket
+    }
 
     internal suspend fun Reset.await() {
         val duration = value - clock.now()
@@ -35,6 +48,7 @@ public abstract class AbstractRateLimiter internal constructor(public val clock:
 
     override suspend fun await(request: Request<*, *>): RequestToken {
         globalSuspensionPoint.value.await()
+
         val buckets = request.buckets
         buckets.forEach { it.awaitAndLock() }
 
@@ -56,14 +70,7 @@ public abstract class AbstractRateLimiter internal constructor(public val clock:
 
         override suspend fun complete(response: RequestResponse) {
             with(rateLimiter) {
-                val key = response.bucketKey
-                if (key != null) {
-                    if (identity.addBucket(key)) {
-
-                        logger.trace { "[DISCOVERED]:[BUCKET]:Bucket discovered for" }
-                        buckets[key] = key.bucket
-                    }
-                }
+                rateLimiter.createBucket(identity, response)
 
                 when (response) {
                     is RequestResponse.GlobalRateLimit -> {
@@ -71,8 +78,10 @@ public abstract class AbstractRateLimiter internal constructor(public val clock:
                         globalSuspensionPoint.update { response.reset }
                     }
                     is RequestResponse.BucketRateLimit -> {
-                        logger.trace { "[RATE LIMIT]:[BUCKET]:Bucket ${response.bucketKey.value} was exhausted until ${response.reset.value}" }
-                        response.bucketKey.bucket.updateReset(response.reset)
+                        logger.trace { "[RATE LIMIT]:[BUCKET]:Bucket ${response.bucketKey.value} (identity $identity) was exhausted until ${response.reset.value}" }
+                    }
+                    is RequestResponse.UnknownBucketRateLimit -> {
+                        logger.trace { "[RATE LIMIT]:[BUCKET]:Identity $identity was exhausted until ${response.reset.value}" }
                     }
                     else -> {}
                 }
@@ -83,22 +92,35 @@ public abstract class AbstractRateLimiter internal constructor(public val clock:
         }
     }
 
-    internal inner class Bucket(val id: BucketKey) {
-        val reset = atomic(Reset(clock.now()))
+    internal inner class Bucket(val identity: RequestIdentifier, val id: BucketKey) {
+        val rateLimitWithReset = atomic<RateLimitWithReset?>(null)
         val mutex = Mutex()
 
         suspend fun awaitAndLock() {
             mutex.lock()
-            logger.trace { "[BUCKET]:Bucket ${id.value} waiting until ${reset.value}" }
-            reset.value.await()
+            val rateLimitWithReset = rateLimitWithReset.value
+            val rateLimit = rateLimitWithReset?.rateLimit
+            val reset = rateLimitWithReset?.reset
+
+            // Is the rate limit null (can be null if the response doesn't have a key, example: emojis) or are we exausted?
+            if (rateLimit == null || rateLimit.isExhausted) {
+                // Yes, we are, so we need to wait for the rate limit reset!
+                if (reset != null) {
+                    logger.trace { "[BUCKET]:Bucket ${id.value} (identity $identity) waiting until ${reset.value}" }
+                    reset.await()
+                } else {
+                    logger.warn { "[BUCKET]:Bucket ${id.value} (identity $identity) is exausted, however we don't have any information about the reset timer" }
+                }
+            }
         }
 
-        fun updateReset(newValue: Reset) {
-            reset.update { newValue }
+        fun updateRateLimit(newRateLimit: RateLimit?, newReset: Reset?) {
+            rateLimitWithReset.update { RateLimitWithReset(newRateLimit, newReset) }
         }
 
         fun unlock() = mutex.unlock()
 
     }
 
+    internal data class RateLimitWithReset(val rateLimit: RateLimit?, val reset: Reset?)
 }
