@@ -7123,7 +7123,7 @@ public class dev/kord/core/entity/User : dev/kord/core/behavior/UserBehavior {
 	public fun getId-4_xYDEk ()J
 	public fun getKord ()Ldev/kord/core/Kord;
 	public fun getMention ()Ljava/lang/String;
-	public final fun getPublicFlags ()Ldev/kord/common/entity/UserFlags;
+	public final fun getPublicFlags-qygzHIY ()Ldev/kord/common/entity/UserFlags;
 	public fun getSupplier ()Ldev/kord/core/supplier/EntitySupplier;
 	public final fun getTag ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;
