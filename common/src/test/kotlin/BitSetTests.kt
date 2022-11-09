@@ -1,4 +1,7 @@
+@file:OptIn(KordUnsafe::class)
+
 import dev.kord.common.DiscordBitSet
+import dev.kord.common.annotation.KordUnsafe
 import org.junit.jupiter.api.Test
 
 class BitSetTests {
@@ -13,7 +16,7 @@ class BitSetTests {
     fun `a equals b`() {
         val a = DiscordBitSet(0b111, 0)
         val b = DiscordBitSet(0b111)
-        assert(a == b)
+        assert(a.isEqual(b))
     }
 
 
@@ -32,9 +35,9 @@ class BitSetTests {
     @Test
     fun `add and remove a  bit`() {
         val a = DiscordBitSet(0b101, 0)
-        a.add(DiscordBitSet(0b111))
+        a.unsafeAdd(DiscordBitSet(0b111))
         assert(a.value == 0b111.toString())
-        a.remove(DiscordBitSet(0b001))
+        a.unsafeRemove(DiscordBitSet(0b001))
         assert(a.value == 0b110.toString())
 
     }
@@ -42,7 +45,7 @@ class BitSetTests {
     @Test
     fun `remove a bit`() {
         val a = DiscordBitSet(0b101, 0)
-        a.remove(DiscordBitSet(0b111))
+        a.unsafeRemove(DiscordBitSet(0b111))
         assert(a.value == "0")
 
     }

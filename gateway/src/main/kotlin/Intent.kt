@@ -45,7 +45,7 @@ public annotation class PrivilegedIntent
  * [defined by Discord](https://discord.com/developers/docs/topics/gateway#gateway-intents).
  */
 public sealed class Intent(public val code: DiscordBitSet) {
-    protected constructor(vararg code: Long) : this(DiscordBitSet(code))
+    protected constructor(code: Long) : this(DiscordBitSet(code))
 
 
     /**
@@ -340,19 +340,19 @@ public data class Intents internal constructor(val code: DiscordBitSet) {
 
     public class IntentsBuilder(internal var code: DiscordBitSet = EmptyBitSet()) {
         public operator fun Intents.unaryPlus() {
-            this@IntentsBuilder.code.add(code)
+            this@IntentsBuilder.code = this@IntentsBuilder.code + code
         }
 
         public operator fun Intent.unaryPlus() {
-            this@IntentsBuilder.code.add(code)
+            this@IntentsBuilder.code = this@IntentsBuilder.code + code
         }
 
         public operator fun Intent.unaryMinus() {
-            this@IntentsBuilder.code.remove(code)
+            this@IntentsBuilder.code = this@IntentsBuilder.code - code
         }
 
         public operator fun Intents.unaryMinus() {
-            this@IntentsBuilder.code.remove(code)
+            this@IntentsBuilder.code = this@IntentsBuilder.code - code
         }
 
         public fun flags(): Intents = Intents(code)
