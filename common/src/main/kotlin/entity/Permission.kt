@@ -14,12 +14,13 @@ import kotlin.contracts.contract
 
 
 @Serializable(with = Permissions.Companion::class)
-public data class Permissions(val code: DiscordBitSet) {
+@JvmInline
+public value class Permissions(public val code: DiscordBitSet) {
     /**
      * Returns this [Permissions] as a [Set] of [Permission]s, not including any [unknown][Permission.Unknown]
      * permissions.
      */
-    val values: Set<Permission> get() = Permission.values.filter { it.code in code }.toSet()
+    public val values: Set<Permission> get() = Permission.values.filter { it.code in code }.toSet()
 
     public operator fun plus(permission: Permission): Permissions = Permissions(code + permission.code)
 
@@ -104,7 +105,7 @@ public fun Permissions(vararg permissions: Permission): Permissions = Permission
     permissions.forEach { +it }
 }
 
-public fun Permissions(vararg permissions: Permissions): Permissions = Permissions {
+public fun Permissions(permissions: List<Permissions>): Permissions = Permissions {
     permissions.forEach { +it }
 }
 
