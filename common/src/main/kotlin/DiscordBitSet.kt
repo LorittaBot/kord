@@ -1,5 +1,8 @@
 package dev.kord.common
 
+import dev.kord.common.annotation.KordUnsafe
+import dev.kord.common.entity.Permission
+import dev.kord.common.entity.Permissions
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -19,7 +22,8 @@ private const val WIDTH = Byte.SIZE_BITS
 public fun EmptyBitSet(): DiscordBitSet = DiscordBitSet(0)
 
 @Serializable(with = DiscordBitSetSerializer::class)
-public class DiscordBitSet(internal var data: LongArray) {
+@JvmInline
+public value class DiscordBitSet(internal val data: LongArray) {
 
     public val isEmpty: Boolean
         get() = data.all { it == 0L }
@@ -37,8 +41,8 @@ public class DiscordBitSet(internal var data: LongArray) {
     public val binary: String
         get() = data.joinToString("") { it.toULong().toString(2) }.reversed().padEnd(8, '0')
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is DiscordBitSet) return false
+    // TODO: Change this to "equals" when Discord adds support for equals for value classes
+    public fun isEqual(other: DiscordBitSet): Boolean {
         for (i in 0 until max(data.size, other.data.size)) {
             if (getOrZero(i) != getOrZero(i)) return false
         }
@@ -62,45 +66,54 @@ public class DiscordBitSet(internal var data: LongArray) {
         return true
     }
 
-    public operator fun set(index: Int, value: Boolean) {
+    /* public operator fun set(index: Int, value: Boolean) {
         if (index !in 0 until size) data.copyOf((63 + index) / WIDTH)
         val indexOfWidth = index / WIDTH
         val bitIndex = index % WIDTH
         val bit = if (value) 1L else 0L
         data[index] = data[indexOfWidth] or (bit shl bitIndex)
-    }
+    } */
 
+    @OptIn(KordUnsafe::class)
     public operator fun plus(another: DiscordBitSet): DiscordBitSet {
-        val dist = LongArray(data.size)
-        data.copyInto(dist)
+        val dist = data.copyOf(max(another.data.size, this.data.size))
         val copy = DiscordBitSet(dist)
-        copy.add(another)
+        copy.unsafeAdd(another)
         return copy
     }
 
+    @OptIn(KordUnsafe::class)
     public operator fun minus(another: DiscordBitSet): DiscordBitSet {
         val dist = LongArray(data.size)
         data.copyInto(dist)
         val copy = DiscordBitSet(dist)
-        copy.remove(another)
+        copy.unsafeRemove(another)
         return copy
     }
 
-    public fun add(another: DiscordBitSet) {
-        if (another.data.size > data.size) data = data.copyOf(another.data.size)
+    /**
+     * This is unsafe because the underlying LongArray is modified!
+     */
+    @KordUnsafe
+    public fun unsafeAdd(another: DiscordBitSet) {
+        if (another.data.size > data.size) error("Incorrect data size! ${another.data.size} (another) is larger than ${data.size}")
         for (i in another.data.indices) {
             data[i] = data[i] or another.data[i]
         }
     }
 
-
-    public fun remove(another: DiscordBitSet) {
+    /**
+     * This is unsafe because the underlying LongArray is modified!
+     */
+    @KordUnsafe
+    public fun unsafeRemove(another: DiscordBitSet) {
         for (i in 0 until min(data.size, another.data.size)) {
             data[i] = data[i] xor (data[i] and another.data[i])
         }
     }
 
-    override fun hashCode(): Int {
+    // TODO: Change this to "hashCode" when Discord adds support for equals for value classes
+    public fun getHashCode(): Int {
         var result = data.contentHashCode()
         result = 31 * result + size
         return result
@@ -109,7 +122,6 @@ public class DiscordBitSet(internal var data: LongArray) {
     override fun toString(): String {
         return "DiscordBitSet($binary)"
     }
-
 }
 
 public fun DiscordBitSet(vararg widths: Long): DiscordBitSet {
