@@ -14,12 +14,13 @@ import kotlin.contracts.contract
 
 
 @Serializable(with = Permissions.Companion::class)
-public data class Permissions(val code: DiscordBitSet) {
+@JvmInline
+public value class Permissions(public val code: DiscordBitSet) {
     /**
      * Returns this [Permissions] as a [Set] of [Permission]s, not including any [unknown][Permission.Unknown]
      * permissions.
      */
-    val values: Set<Permission> get() = Permission.values.filter { it.code in code }.toSet()
+    public val values: Set<Permission> get() = Permission.values.filter { it.code in code }.toSet()
 
     public operator fun plus(permission: Permission): Permissions = Permissions(code + permission.code)
 
@@ -71,21 +72,21 @@ public data class Permissions(val code: DiscordBitSet) {
 
     }
 
-    public class PermissionsBuilder(internal val code: DiscordBitSet) {
+    public class PermissionsBuilder(internal var code: DiscordBitSet) {
         public operator fun Permissions.unaryPlus() {
-            this@PermissionsBuilder.code.add(code)
+            this@PermissionsBuilder.code = this@PermissionsBuilder.code + code
         }
 
         public operator fun Permissions.unaryMinus() {
-            this@PermissionsBuilder.code.remove(code)
+            this@PermissionsBuilder.code = this@PermissionsBuilder.code - code
         }
 
         public operator fun Permission.unaryPlus() {
-            this@PermissionsBuilder.code.add(code)
+            this@PermissionsBuilder.code = this@PermissionsBuilder.code + code
         }
 
         public operator fun Permission.unaryMinus() {
-            this@PermissionsBuilder.code.remove(code)
+            this@PermissionsBuilder.code = this@PermissionsBuilder.code - code
         }
 
         public fun permissions(): Permissions = Permissions(code)
@@ -104,7 +105,7 @@ public fun Permissions(vararg permissions: Permission): Permissions = Permission
     permissions.forEach { +it }
 }
 
-public fun Permissions(vararg permissions: Permissions): Permissions = Permissions {
+public fun Permissions(permissions: List<Permissions>): Permissions = Permissions {
     permissions.forEach { +it }
 }
 
@@ -121,7 +122,7 @@ public fun Permissions(permissions: Iterable<Permissions>): Permissions = Permis
 
 /** A [Permission](https://discord.com/developers/docs/topics/permissions) in Discord. */
 public sealed class Permission(public val code: DiscordBitSet) {
-    protected constructor(vararg values: Long) : this(DiscordBitSet(values))
+    protected constructor(value: Long) : this(DiscordBitSet(value))
 
     /**
      * A fallback [Permission] for permissions that haven't been added to Kord yet.
@@ -140,7 +141,7 @@ public sealed class Permission(public val code: DiscordBitSet) {
      */
     public class Unknown : Permission {
         public constructor(code: DiscordBitSet) : super(code)
-        public constructor(vararg values: Long) : super(*values)
+        public constructor(value: Long) : super(DiscordBitSet(value))
     }
 
     /** Allows creation of instant invites. */

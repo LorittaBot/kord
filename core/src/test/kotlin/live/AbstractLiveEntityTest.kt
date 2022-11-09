@@ -1,5 +1,6 @@
 package live
 
+import BoxedSnowflake
 import dev.kord.cache.api.DataCache
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.ClientResources
@@ -75,14 +76,14 @@ abstract class AbstractLiveEntityTest<LIVE : AbstractLiveKordEntity> {
 
     protected lateinit var kord: Kord
 
-    protected lateinit var guildId: Snowflake
+    protected lateinit var guildId: BoxedSnowflake
 
     lateinit var live: LIVE
 
     @BeforeAll
     open fun onBeforeAll() = runBlocking {
         kord = createKord()
-        guildId = randomId()
+        guildId = BoxedSnowflake(randomId())
     }
 
     @AfterAll
